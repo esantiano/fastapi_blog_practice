@@ -6,3 +6,8 @@ psycopg2-binary==2.9.6 # adapter for sqlalchemy
 
 python-dotenv==1.0.0 # create from a dotenv file 
 
+alembic==1.11.1
+
+pydantic[email]
+
+passlib[bcrypt]
