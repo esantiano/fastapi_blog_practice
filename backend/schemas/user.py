@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -9,5 +9,4 @@ class ShowUser(BaseModel): # used for return information from the api, mainly to
     email: EmailStr
     is_active: bool
 
-    class Config():
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
