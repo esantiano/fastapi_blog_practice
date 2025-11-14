@@ -10,3 +10,7 @@ class ShowUser(BaseModel): # used for return information from the api, mainly to
     is_active: bool
 
     model_config = ConfigDict(from_attributes=True)
+
+class DuplicateUserError(Exception):
+    def __init__(self, message: str):
+        self.message = message
