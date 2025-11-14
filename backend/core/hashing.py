@@ -9,4 +9,5 @@ class Hasher:
     
     @staticmethod
     def get_password_hash(password):
-        return pwd_context.hash(password)
+        # print(len(password.encode('utf-8')))
+        return pwd_context.hash(password.encode('utf-8'))
