@@ -1,6 +1,8 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
 from db.session import get_db
+from db.models.user import User
+from apis.v1.route_login import get_current_user
 from schemas.blog import CreateBlog, ShowBlog, UpdateBlog
 from db.repository.blog import create_new_blog, retrieve_blog, list_blogs, update_blog_by_id, delete_blog_by_id
 from typing import List
@@ -8,8 +10,8 @@ from typing import List
 router = APIRouter()
 
 @router.post("/", response_model=ShowBlog, status_code=status.HTTP_201_CREATED)
-def create_blog(blog: CreateBlog, db: Session = Depends(get_db)):
-    blog = create_new_blog(blog=blog, db=db, author_id=1)
+def create_blog(blog: CreateBlog, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    blog = create_new_blog(blog=blog, db=db, author_id=current_user.id)
     return blog
 
 @router.get("/{id}", response_model=ShowBlog)
@@ -25,15 +27,20 @@ def get_all_blogs(db: Session = Depends(get_db)):
     return blogs
 
 @router.put("/{id}", response_model=ShowBlog)
-def udpate_a_blog(id: int, blog: UpdateBlog, db: Session = Depends(get_db)):
-    blog = update_blog_by_id(id=id, blog=blog, db=db, author_id=1)
+def udpate_a_blog(id: int, blog: UpdateBlog, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    blog = update_blog_by_id(id=id, blog=blog, db=db, author_id=current_user.id)
+    if isinstance(blog, dict):
+        raise HTTPException(
+            detail=blog.get("error"),
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
     if not blog:
         raise HTTPException(detail=f"Blog with if {id} does not exist")
     return blog
 
 @router.delete("/{id}")
-def delete_a_blog(id: int, db: Session = Depends(get_db)):
-    message = delete_blog_by_id(id=id,db=db,author_id=1)
+def delete_a_blog(id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    message = delete_blog_by_id(id=id,db=db, author_id=current_user.id)
     if message.get("error"):
         raise HTTPException(detail=message.get("error"), status_code=status.HTTP_400_BAD_REQUEST)
     return {"msg":message.get("msg")}
